@@ -40,7 +40,7 @@ class BaseClient : public rclcpp::Node,public ClientConfig
 public:
     BaseClient(const std::string &nodeName, const std::string &serviceName) : Node(nodeName), mServiceName(serviceName)
     {
-        mClient = this->create_client<unitree_api::srv::Generic>(mServiceName);
+        mClient = this->create_client<unitree_api::srv::Generic>(mServiceName.c_str());
     }
     virtual ~BaseClient()
     {
@@ -51,7 +51,7 @@ protected:
     {
         if (!wait_service())
         {
-            RCLCPP_ERROR(this->get_logger(), "service %s is not ready", mServiceName);
+            RCLCPP_ERROR(this->get_logger(), "service %s is not ready", mServiceName.c_str());
             return ERR_ROS_SERVICE_NOT_READY;
         }
         auto future = mClient->async_send_request(request);
@@ -99,16 +99,16 @@ private:
         {
             if (!rclcpp::ok())
             {
-                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service %s to be available...", mServiceName);
+                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service %s to be available...", mServiceName.c_str());
                 return false;
             }
             ++tryTimes;
             if (tryTimes >= WAIT_ROS_SERVICE_MAX_TRY_TIME)
             {
-                RCLCPP_ERROR(this->get_logger(), "Failed to find service : %s", mServiceName);
+                RCLCPP_ERROR(this->get_logger(), "Failed to find service : %s", mServiceName.c_str());
                 return false;
             }
-            RCLCPP_INFO(this->get_logger(), "Waiting for the service %s to be available...", mServiceName);
+            RCLCPP_INFO(this->get_logger(), "Waiting for the service %s to be available...", mServiceName.c_str());
         }
         SetServiceStatus(true);
         return true;
