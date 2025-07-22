@@ -6,7 +6,7 @@ using namespace unitree::ros2::go2;
 
 void SportClientApi::DampReq(
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
-  req->priority = true;
+  req->priority = 1;
   req->api_id = ROBOT_SPORT_API_ID_DAMP;
 }
 
@@ -27,7 +27,7 @@ int32_t SportClientApi::BalanceStandRes(
 
 void SportClientApi::StopMoveReq(
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
-  req->priority = true;
+  req->priority = 1;
   req->api_id = ROBOT_SPORT_API_ID_STOPMOVE;
 }
 
@@ -411,17 +411,17 @@ int32_t SportClientApi::WiggleHipsRes(
 void SportClientApi::GetStateReq(
     const std::vector<std::string> &status,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
-  nlohmann::json js = status;
+  nlohmann::json const js = status;
   req->parameter = js.dump();
   req->api_id = ROBOT_SPORT_API_ID_GETSTATE;
 }
 
 int32_t SportClientApi::GetStateRes(
     const std::shared_ptr<unitree_api::srv::Generic::Response> &res,
-    std::map<std::string, std::string> &statusMap) {
+    std::map<std::string, std::string> &status_map) {
   if (res->code == 0) {
     auto js = nlohmann::json::parse(res->data.c_str());
-    statusMap = js.get<std::map<std::string, std::string>>();
+    status_map = js.get<std::map<std::string, std::string>>();
   }
   return res->code;
 }

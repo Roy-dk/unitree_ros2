@@ -2,12 +2,11 @@
 
 #include <cmath>
 
-namespace unitree {
-namespace common {
+namespace unitree::common {
 
 // bytecode mapping for raw joystick data
 // 16b
-typedef union {
+using xKeySwitchUnion = union {
   struct {
     uint8_t R1 : 1;
     uint8_t L1 : 1;
@@ -27,10 +26,10 @@ typedef union {
     uint8_t left : 1;
   } components;
   uint16_t value;
-} xKeySwitchUnion;
+};
 
 // 40 Byte (now used 24B)
-typedef struct {
+using xRockerBtnDataStruct = struct {
   uint8_t head[2];
   xKeySwitchUnion btn;
   float lx;
@@ -40,16 +39,16 @@ typedef struct {
   float ly;
 
   uint8_t idle[16];
-} xRockerBtnDataStruct;
+};
 
-typedef union {
+using REMOTE_DATA_RX = union {
   xRockerBtnDataStruct RF_RX;
   uint8_t buff[40];
-} REMOTE_DATA_RX;
+};
 
 class Button {
  public:
-  Button() {}
+  Button() = default;
 
   void update(bool state) {
     on_press = state ? state != pressed : false;
@@ -64,7 +63,7 @@ class Button {
 
 class Gamepad {
  public:
-  Gamepad() {}
+  Gamepad() = default;
 
   void update(xRockerBtnDataStruct &key_data) {
     lx = lx * (1 - smooth) +
@@ -122,5 +121,4 @@ class Gamepad {
   Button down;
   Button left;
 };
-}  // namespace common
-}  // namespace unitree
+}  // namespace unitree::common

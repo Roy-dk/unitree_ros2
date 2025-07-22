@@ -21,10 +21,10 @@ int32_t MotionSwitchApi::CheckModeRes(
 }
 
 void MotionSwitchApi::SelectModeReq(
-    const std::string &nameOrAlias,
+    const std::string &name_or_alias,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
   nlohmann::json js;
-  js["name"] = nameOrAlias;
+  js["name"] = name_or_alias;
   req->parameter = js.dump();
   req->api_id = MOTION_SWITCHER_API_ID_SELECT_MODE;
 }

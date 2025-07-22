@@ -3,11 +3,10 @@
 ******************************************************************/
 
 #ifndef _MOTOR_CRC_H_
-#define _MOTOR_CRC_H_
-
-#include <stdint.h>
+#define MOTOR_CRC_H_
 
 #include <array>
+#include <cstdint>
 
 #include "rclcpp/rclcpp.hpp"
 #include "unitree_go/msg/bms_cmd.hpp"
@@ -17,8 +16,8 @@
 constexpr int HIGHLEVEL = 0xee;
 constexpr int LOWLEVEL = 0xff;
 constexpr int TRIGERLEVEL = 0xf0;
-constexpr double PosStopF = (2.146E+9f);
-constexpr double VelStopF = (16000.0f);
+constexpr double POS_STOP_F = (2.146E+9F);
+constexpr double VEL_STOP_F = (16000.0F);
 
 // joint index
 constexpr int FR_0 = 0;
@@ -37,12 +36,12 @@ constexpr int RL_0 = 9;
 constexpr int RL_1 = 10;
 constexpr int RL_2 = 11;
 
-typedef struct {
+using BmsCmd = struct {
   uint8_t off;  // off 0xA5
   std::array<uint8_t, 3> reserve;
-} BmsCmd;
+};
 
-typedef struct {
+using MotorCmd = struct {
   uint8_t mode;  // desired working mode
   float q;       // desired angle (unit: radian)
   float dq;      // desired velocity (unit: radian/second)
@@ -50,9 +49,9 @@ typedef struct {
   float Kp;      // desired position stiffness (unit: N.m/rad )
   float Kd;      // desired velocity stiffness (unit: N.m/(rad/s) )
   std::array<uint32_t, 3> reserve;
-} MotorCmd;  // motor control
+};  // motor control
 
-typedef struct {
+using LowCmd = struct {
   std::array<uint8_t, 2> head;
   uint8_t levelFlag;
   uint8_t frameReserve;
@@ -69,7 +68,7 @@ typedef struct {
   uint32_t reserve;
 
   uint32_t crc;
-} LowCmd;
+};
 
 void get_crc(unitree_go::msg::LowCmd& msg);
 

@@ -23,24 +23,24 @@ static const std::string HG_STATE_TOPIC = "lowstate";
 template <typename T>
 class DataBuffer {
  public:
-  void SetData(const T &newData) {
-    std::lock_guard<std::mutex> lock(mutex);
-    data = std::make_shared<T>(newData);
+  void SetData(const T &new_data) {
+    std::lock_guard<std::mutex> const lock(mutex_);
+    data_ = std::make_shared<T>(new_data);
   }
 
   std::shared_ptr<const T> GetData() {
-    std::lock_guard<std::mutex> lock(mutex);
-    return data ? data : nullptr;
+    std::lock_guard<std::mutex> const lock(mutex_);
+    return data_ ? data_ : nullptr;
   }
 
   void Clear() {
-    std::lock_guard<std::mutex> lock(mutex);
-    data = nullptr;
+    std::lock_guard<std::mutex> lock(mutex_);
+    data_ = nullptr;
   }
 
  private:
-  std::shared_ptr<T> data;
-  std::mutex mutex;
+  std::shared_ptr<T> data_;
+  std::mutex mutex_;
 };
 
 const int G1_NUM_MOTOR = 29;
@@ -84,80 +84,78 @@ enum class Mode {
 };
 
 enum G1JointIndex {
-  LeftHipPitch = 0,
-  LeftHipRoll = 1,
-  LeftHipYaw = 2,
-  LeftKnee = 3,
-  LeftAnklePitch = 4,
-  LeftAnkleB = 4,
-  LeftAnkleRoll = 5,
-  LeftAnkleA = 5,
-  RightHipPitch = 6,
-  RightHipRoll = 7,
-  RightHipYaw = 8,
-  RightKnee = 9,
-  RightAnklePitch = 10,
-  RightAnkleB = 10,
-  RightAnkleRoll = 11,
-  RightAnkleA = 11,
-  WaistYaw = 12,
-  WaistRoll = 13,   // NOTE INVALID for g1 23dof/29dof with waist locked
-  WaistA = 13,      // NOTE INVALID for g1 23dof/29dof with waist locked
-  WaistPitch = 14,  // NOTE INVALID for g1 23dof/29dof with waist locked
-  WaistB = 14,      // NOTE INVALID for g1 23dof/29dof with waist locked
-  LeftShoulderPitch = 15,
-  LeftShoulderRoll = 16,
-  LeftShoulderYaw = 17,
-  LeftElbow = 18,
-  LeftWristRoll = 19,
-  LeftWristPitch = 20,  // NOTE INVALID for g1 23dof
-  LeftWristYaw = 21,    // NOTE INVALID for g1 23dof
-  RightShoulderPitch = 22,
-  RightShoulderRoll = 23,
-  RightShoulderYaw = 24,
-  RightElbow = 25,
-  RightWristRoll = 26,
-  RightWristPitch = 27,  // NOTE INVALID for g1 23dof
-  RightWristYaw = 28     // NOTE INVALID for g1 23dof
+  LEFT_HIP_PITCH = 0,
+  LEFT_HIP_ROLL = 1,
+  LEFT_HIP_YAW = 2,
+  LEFT_KNEE = 3,
+  LEFT_ANKLE_PITCH = 4,
+  LEFT_ANKLE_B = 4,
+  LEFT_ANKLE_ROLL = 5,
+  LEFT_ANKLE_A = 5,
+  RIGHT_HIP_PITCH = 6,
+  RIGHT_HIP_ROLL = 7,
+  RIGHT_HIP_YAW = 8,
+  RIGHT_KNEE = 9,
+  RIGHT_ANKLE_PITCH = 10,
+  RIGHT_ANKLE_B = 10,
+  RIGHT_ANKLE_ROLL = 11,
+  RIGHT_ANKLE_A = 11,
+  WAIST_YAW = 12,
+  WAIST_ROLL = 13,   // NOTE INVALID for g1 23dof/29dof with waist locked
+  WAIST_A = 13,      // NOTE INVALID for g1 23dof/29dof with waist locked
+  WAIST_PITCH = 14,  // NOTE INVALID for g1 23dof/29dof with waist locked
+  WAIST_B = 14,      // NOTE INVALID for g1 23dof/29dof with waist locked
+  LEFT_SHOULDER_PITCH = 15,
+  LEFT_SHOULDER_ROLL = 16,
+  LEFT_SHOULDER_YAW = 17,
+  LEFT_ELBOW = 18,
+  LEFT_WRIST_ROLL = 19,
+  LEFT_WRIST_PITCH = 20,  // NOTE INVALID for g1 23dof
+  LEFT_WRIST_YAW = 21,    // NOTE INVALID for g1 23dof
+  RIGHT_SHOULDER_PITCH = 22,
+  RIGHT_SHOULDER_ROLL = 23,
+  RIGHT_SHOULDER_YAW = 24,
+  RIGHT_ELBOW = 25,
+  RIGHT_WRIST_ROLL = 26,
+  RIGHT_WRIST_PITCH = 27,  // NOTE INVALID for g1 23dof
+  RIGHT_WRIST_YAW = 28     // NOTE INVALID for g1 23dof
 };
 
 class g1_ankle_swing_sender : public rclcpp::Node {
  public:
   g1_ankle_swing_sender()
       : Node("g1_ankle_swing_sender"),
-        mTime(0.0),
-        mControlDt(0.002),
-        mDuration(3.0),
-        mCounter(0),
-        mModePr(Mode::PR),
-        mModeMachine(0) {
+
+        mode_machine_(0) {
     //  bind to g1_ankle_swing_sender::LowStateHandler for subscribe "lowstate"
     //  topic
-    mLowstateSubscriber = this->create_subscription<unitree_hg::msg::LowState>(
+    lowstate_subscriber_ = this->create_subscription<unitree_hg::msg::LowState>(
         HG_STATE_TOPIC, 10,
-        std::bind(&g1_ankle_swing_sender::LowStateHandler, this, _1));
+        [this](const unitree_hg::msg::LowState::SharedPtr message) {
+          LowStateHandler(message);
+        });
     //  bind to g1_ankle_swing_sender::ImuStateHandler for subscribe
     //  "secondary_imu" topic
-    mImustateSubscriber = this->create_subscription<unitree_hg::msg::IMUState>(
+    imustate_subscriber_ = this->create_subscription<unitree_hg::msg::IMUState>(
         HG_IMU_TORSO, 10,
-        std::bind(&g1_ankle_swing_sender::ImuStateHandler, this, _1));
+        [this](const unitree_hg::msg::IMUState::SharedPtr message) {
+          ImuStateHandler(message);
+        });
 
     // the mLowcmdPublisher is set to publish "/lowcmd" topic
-    mLowcmdPublisher =
+    lowcmd_publisher_ =
         this->create_publisher<unitree_hg::msg::LowCmd>(HG_CMD_TOPIC, 10);
 
-    mTimer1 = this->create_wall_timer(
-        std::chrono::milliseconds(2),
-        std::bind(&g1_ankle_swing_sender::Control, this));
-    mTimer2 = this->create_wall_timer(
-        std::chrono::milliseconds(2),
-        std::bind(&g1_ankle_swing_sender::LowCommandWriter, this));
+    timer1_ = this->create_wall_timer(std::chrono::milliseconds(2),
+                                      [this] { Control(); });
+    timer2_ = this->create_wall_timer(std::chrono::milliseconds(2),
+                                      [this] { LowCommandWriter(); });
   }
 
  private:
   void Control() {
     MotorCommand motorCommandTmp;
-    const std::shared_ptr<const MotorState> ms = mMotorStateBuffer.GetData();
+    const std::shared_ptr<const MotorState> ms = motor_state_buffer_.GetData();
 
     for (int i = 0; i < G1_NUM_MOTOR; ++i) {
       motorCommandTmp.tau_ff.at(i) = 0.0;
@@ -172,52 +170,53 @@ class g1_ankle_swing_sender : public rclcpp::Node {
       if (mTime < mDuration) {
         // [Stage 1]: set robot to zero posture
         for (int i = 0; i < G1_NUM_MOTOR; ++i) {
-          double ratio = unitree::common::clamp(mTime / mDuration, 0.0, 1.0);
+          double const ratio =
+              unitree::common::clamp(mTime / mDuration, 0.0, 1.0);
           motorCommandTmp.q_target.at(i) = (1.0 - ratio) * ms->q.at(i);
         }
       } else if (mTime < mDuration * 2) {
         // [Stage 2]: swing ankle using PR mode
         mModePr = Mode::PR;
-        double max_P = M_PI * 30.0 / 180.0;
-        double max_R = M_PI * 10.0 / 180.0;
-        double t = mTime - mDuration;
-        double L_P_des = max_P * std::sin(2.0 * M_PI * t);
-        double L_R_des = max_R * std::sin(2.0 * M_PI * t);
-        double R_P_des = max_P * std::sin(2.0 * M_PI * t);
-        double R_R_des = -max_R * std::sin(2.0 * M_PI * t);
+        double const max_P = M_PI * 30.0 / 180.0;
+        double const max_R = M_PI * 10.0 / 180.0;
+        double const t = mTime - mDuration;
+        double const L_P_des = max_P * std::sin(2.0 * M_PI * t);
+        double const L_R_des = max_R * std::sin(2.0 * M_PI * t);
+        double const R_P_des = max_P * std::sin(2.0 * M_PI * t);
+        double const R_R_des = -max_R * std::sin(2.0 * M_PI * t);
 
-        motorCommandTmp.q_target.at(LeftAnklePitch) = L_P_des;
-        motorCommandTmp.q_target.at(LeftAnkleRoll) = L_R_des;
-        motorCommandTmp.q_target.at(RightAnklePitch) = R_P_des;
-        motorCommandTmp.q_target.at(RightAnkleRoll) = R_R_des;
+        motorCommandTmp.q_target.at(LEFT_ANKLE_PITCH) = L_P_des;
+        motorCommandTmp.q_target.at(LEFT_ANKLE_ROLL) = L_R_des;
+        motorCommandTmp.q_target.at(RIGHT_ANKLE_PITCH) = R_P_des;
+        motorCommandTmp.q_target.at(RIGHT_ANKLE_ROLL) = R_R_des;
       } else {
         // [Stage 3]: swing ankle using AB mode
         mModePr = Mode::AB;
-        double max_A = M_PI * 30.0 / 180.0;
-        double max_B = M_PI * 10.0 / 180.0;
-        double t = mTime - mDuration * 2;
-        double L_A_des = +max_A * std::sin(M_PI * t);
-        double L_B_des = +max_B * std::sin(M_PI * t + M_PI);
-        double R_A_des = -max_A * std::sin(M_PI * t);
-        double R_B_des = -max_B * std::sin(M_PI * t + M_PI);
+        double const max_A = M_PI * 30.0 / 180.0;
+        double const max_B = M_PI * 10.0 / 180.0;
+        double const t = mTime - mDuration * 2;
+        double const L_A_des = +max_A * std::sin(M_PI * t);
+        double const L_B_des = +max_B * std::sin(M_PI * t + M_PI);
+        double const R_A_des = -max_A * std::sin(M_PI * t);
+        double const R_B_des = -max_B * std::sin(M_PI * t + M_PI);
 
-        motorCommandTmp.q_target.at(LeftAnkleA) = L_A_des;
-        motorCommandTmp.q_target.at(LeftAnkleB) = L_B_des;
-        motorCommandTmp.q_target.at(RightAnkleA) = R_A_des;
-        motorCommandTmp.q_target.at(RightAnkleB) = R_B_des;
+        motorCommandTmp.q_target.at(LEFT_ANKLE_A) = L_A_des;
+        motorCommandTmp.q_target.at(LEFT_ANKLE_B) = L_B_des;
+        motorCommandTmp.q_target.at(RIGHT_ANKLE_A) = R_A_des;
+        motorCommandTmp.q_target.at(RIGHT_ANKLE_B) = R_B_des;
       }
 
-      mMotorCommandBuffer.SetData(motorCommandTmp);
+      motor_command_buffer_.SetData(motorCommandTmp);
     }
   }
 
   void LowCommandWriter() {
     unitree_hg::msg::LowCmd lowCommand;
     lowCommand.mode_pr = static_cast<uint8_t>(mModePr);
-    lowCommand.mode_machine = mModeMachine;
+    lowCommand.mode_machine = mode_machine_;
 
     const std::shared_ptr<const MotorCommand> mc =
-        mMotorCommandBuffer.GetData();
+        motor_command_buffer_.GetData();
     if (mc) {
       for (size_t i = 0; i < G1_NUM_MOTOR; i++) {
         lowCommand.motor_cmd.at(i).mode = 1;  // 1:Enable, 0:Disable
@@ -229,42 +228,42 @@ class g1_ankle_swing_sender : public rclcpp::Node {
       }
 
       get_crc(lowCommand);
-      mLowcmdPublisher->publish(lowCommand);
+      lowcmd_publisher_->publish(lowCommand);
     }
   }
 
-  void LowStateHandler(unitree_hg::msg::LowState::SharedPtr message) {
+  void LowStateHandler(const unitree_hg::msg::LowState::SharedPtr &message) {
     // get motor state
     MotorState msTmp;
     for (int i = 0; i < G1_NUM_MOTOR; ++i) {
       msTmp.q.at(i) = message->motor_state[i].q;
       msTmp.dq.at(i) = message->motor_state[i].dq;
-      if (message->motor_state[i].motorstate && i <= RightAnkleRoll) {
+      if ((message->motor_state[i].motorstate != 0u) && i <= RIGHT_ANKLE_ROLL) {
         RCLCPP_INFO(this->get_logger(), "[ERROR] motor %d with code %d", i,
                     message->motor_state[i].motorstate);
       }
     }
-    mMotorStateBuffer.SetData(msTmp);
+    motor_state_buffer_.SetData(msTmp);
 
     // get imu state
     ImuState imuTmp;
     imuTmp.omega = message->imu_state.gyroscope;
     imuTmp.rpy = message->imu_state.rpy;
-    mImuStateBuffer.SetData(imuTmp);
+    imu_state_buffer_.SetData(imuTmp);
 
     // update gamepad
     Gamepad gamepad;
     REMOTE_DATA_RX rx;
-    memcpy(rx.buff, &message->wireless_remote[0], 40);
+    memcpy(rx.buff, message->wireless_remote.data(), 40);
     gamepad.update(rx.RF_RX);
 
     // update mode machine
-    if (mModeMachine != message->mode_machine) {
-      if (mModeMachine == 0) {
+    if (mode_machine_ != message->mode_machine) {
+      if (mode_machine_ == 0) {
         RCLCPP_INFO(this->get_logger(), "G1 type: %d",
                     unsigned(message->mode_machine));
       }
-      mModeMachine = message->mode_machine;
+      mode_machine_ = message->mode_machine;
     }
 
     // report robot status every second
@@ -338,7 +337,7 @@ class g1_ankle_swing_sender : public rclcpp::Node {
     }
   }
 
-  void ImuStateHandler(unitree_hg::msg::IMUState::SharedPtr message) {
+  void ImuStateHandler(const unitree_hg::msg::IMUState::SharedPtr &message) {
     auto &rpy = message->rpy;
     if (mCounter % 500 == 0) {
       RCLCPP_INFO(this->get_logger(), "IMU.torso.rpy: %.2f %.2f %.2f", rpy[0],
@@ -347,30 +346,31 @@ class g1_ankle_swing_sender : public rclcpp::Node {
   }
 
   rclcpp::Publisher<unitree_hg::msg::LowCmd>::SharedPtr
-      mLowcmdPublisher;  // ROS2 Publisher
+      lowcmd_publisher_;  // ROS2 Publisher
   rclcpp::Subscription<unitree_hg::msg::LowState>::SharedPtr
-      mLowstateSubscriber;  // ROS2 Subscriber
+      lowstate_subscriber_;  // ROS2 Subscriber
   rclcpp::Subscription<unitree_hg::msg::IMUState>::SharedPtr
-      mImustateSubscriber;  // ROS2 Subscriber
-  rclcpp::TimerBase::SharedPtr mTimer1;
-  rclcpp::TimerBase::SharedPtr mTimer2;
+      imustate_subscriber_;  // ROS2 Subscriber
+  rclcpp::TimerBase::SharedPtr timer1_;
+  rclcpp::TimerBase::SharedPtr timer2_;
 
-  double mTime;
-  double mControlDt;  // [2ms]
-  double mDuration;   // [3 s]
-  int32_t mCounter;
-  Mode mModePr;
-  std::atomic<uint8_t> mModeMachine;
+  double mTime{0.0};
+  double mControlDt{0.002};  // [2ms]
+  double mDuration{3.0};     // [3 s]
+  int32_t mCounter{0};
+  Mode mModePr{Mode::PR};
+  std::atomic<uint8_t> mode_machine_;
 
-  DataBuffer<MotorState> mMotorStateBuffer;
-  DataBuffer<MotorCommand> mMotorCommandBuffer;
-  DataBuffer<ImuState> mImuStateBuffer;
+  DataBuffer<MotorState> motor_state_buffer_;
+  DataBuffer<MotorCommand> motor_command_buffer_;
+  DataBuffer<ImuState> imu_state_buffer_;
 };
 
 // try to shutdown motion control-related service
 void ShutdownMotionCtrl() {
   auto client = std::make_shared<unitree::ros2::MotionSwitchClient>();
-  std::string form, name;
+  std::string form;
+  std::string name;
   while (client->CheckMode(form, name), !name.empty()) {
     if (client->ReleaseMode() != 0) {
       std::cout << "Failed to switch to Release Mode" << std::endl;

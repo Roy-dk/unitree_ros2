@@ -8,7 +8,7 @@ void AudioClientApi::TtsMakerReq(
     const std::string &text, int32_t speaker_id,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
   nlohmann::json js;
-  js["index"] = mTtsIndex++;
+  js["index"] = tts_index_++;
   js["text"] = text;
   js["speaker_id"] = speaker_id;
   req->parameter = js.dump();
@@ -82,12 +82,12 @@ int32_t AudioClientApi::PlayStopRes(
 }
 
 void AudioClientApi::LedControlReq(
-    uint8_t R, uint8_t G, uint8_t B,
+    uint8_t r, uint8_t g, uint8_t b,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
   nlohmann::json js;
-  js["R"] = R;
-  js["G"] = G;
-  js["B"] = B;
+  js["R"] = r;
+  js["G"] = g;
+  js["B"] = b;
   req->parameter = js.dump();
   req->api_id = ROBOT_API_ID_AUDIO_SET_RGB_LED;
 }

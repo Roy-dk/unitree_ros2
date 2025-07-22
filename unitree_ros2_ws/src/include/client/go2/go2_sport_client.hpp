@@ -3,13 +3,11 @@
 #include "client/base_client.hpp"
 #include "client/go2/go2_sport_api.hpp"
 
-namespace unitree {
-namespace ros2 {
-namespace go2 {
+namespace unitree::ros2::go2 {
 
 class SportClient : public BaseClient {
  public:
-  SportClient(const std::string& nodeName = "go2_sport_lient");
+  explicit SportClient(const std::string& node_name = "go2_sport_lient");
 
   int32_t Damp();
 
@@ -82,7 +80,7 @@ class SportClient : public BaseClient {
   int32_t WiggleHips();
 
   int32_t GetState(const std::vector<std::string>& status,
-                   std::map<std::string, std::string>& statusMap);
+                   std::map<std::string, std::string>& status_map);
 
   int32_t EconomicGait(bool flag);
 
@@ -105,9 +103,7 @@ class SportClient : public BaseClient {
   int32_t CrossStep(bool flag);
 
  private:
-  SportClientApi mParam;
+  SportClientApi param_;
 };
 
-}  // namespace go2
-}  // namespace ros2
-}  // namespace unitree
+}  // namespace unitree::ros2::go2

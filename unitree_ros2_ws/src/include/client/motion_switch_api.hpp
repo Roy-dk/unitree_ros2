@@ -2,8 +2,7 @@
 
 #include "unitree_api/srv/generic.hpp"
 
-namespace unitree {
-namespace ros2 {
+namespace unitree::ros2 {
 
 constexpr int32_t MOTION_SWITCHER_API_ID_CHECK_MODE = 1001;
 constexpr int32_t MOTION_SWITCHER_API_ID_SELECT_MODE = 1002;
@@ -13,39 +12,38 @@ constexpr int32_t MOTION_SWITCHER_API_ID_GET_SILENT = 1005;
 
 class MotionSwitchApi {
  public:
-  void CheckModeReq(
+  static void CheckModeReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t CheckModeRes(
+  static int32_t CheckModeRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res,
       std::string &form, std::string &name);
 
-  void SelectModeReq(
-      const std::string &nameOrAlias,
+  static void SelectModeReq(
+      const std::string &name_or_alias,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t SelectModeRes(
+  static int32_t SelectModeRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void ReleaseModeReq(
+  static void ReleaseModeReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t ReleaseModeRes(
+  static int32_t ReleaseModeRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void SetSilentReq(
+  static void SetSilentReq(
       bool silent,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t SetSilentRes(
+  static int32_t SetSilentRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void GetSilentReq(
+  static void GetSilentReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t GetSilentRes(
+  static int32_t GetSilentRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res,
       bool &silent);
 };
-}  // namespace ros2
-}  // namespace unitree
+}  // namespace unitree::ros2

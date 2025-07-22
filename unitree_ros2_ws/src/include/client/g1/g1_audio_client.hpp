@@ -3,13 +3,11 @@
 #include "client/base_client.hpp"
 #include "client/g1/g1_audio_api.hpp"
 
-namespace unitree {
-namespace ros2 {
-namespace g1 {
+namespace unitree::ros2::g1 {
 
 class AudioClient : public BaseClient {
  public:
-  AudioClient(const std::string &nodeName = "g1_voice_lient");
+  explicit AudioClient(const std::string &node_name = "g1_voice_lient");
 
   int32_t TtsMaker(const std::string &text, int32_t speaker_id);
 
@@ -22,12 +20,10 @@ class AudioClient : public BaseClient {
 
   int32_t PlayStop(const std::string &app_name);
 
-  int32_t LedControl(uint8_t R, uint8_t G, uint8_t B);
+  int32_t LedControl(uint8_t r, uint8_t g, uint8_t b);
 
  private:
-  AudioClientApi mParam;
+  AudioClientApi param_;
 };
 
-}  // namespace g1
-}  // namespace ros2
-}  // namespace unitree
+}  // namespace unitree::ros2::g1

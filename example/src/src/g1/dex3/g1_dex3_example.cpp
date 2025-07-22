@@ -28,21 +28,22 @@ const float minLimits_right[7] = {-1.05, -1.05, -1.75, 0, 0, 0, 0};
 
 enum State { INIT, ROTATE, GRIP, STOP, PRINT };
 
-typedef struct {
+using RIS_Mode_t = struct {
   uint8_t id : 4;
   uint8_t status : 3;
   uint8_t timeout : 1;
-} RIS_Mode_t;
+};
 
-class g1_dex3_sender : public rclcpp::Node {
+class G1Dex3Sender : public rclcpp::Node {
  public:
-  g1_dex3_sender() : Node("g1_dex3_sender"), currentState_(INIT) {
-    // The suber  callback function is bind to g1_dex3_sender::topic_callback
+  G1Dex3Sender() : Node("G1Dex3Sender"), current_state_(INIT) {
+    // The suber  callback function is bind to G1Dex3Sender::topic_callback
     handstate_subscriber_ =
         this->create_subscription<unitree_hg::msg::HandState>(
             handstate_topic, 10,
-            std::bind(&g1_dex3_sender::HandStateHandler, this,
-                      std::placeholders::_1));
+            [this](const unitree_hg::msg::HandState::SharedPtr message) {
+              HandStateHandler(message);
+            });
 
     // the handcmd_publisher_ is set to subscribe "lf/dex3/[left or
     // right]/state" topic
@@ -50,20 +51,19 @@ class g1_dex3_sender : public rclcpp::Node {
         this->create_publisher<unitree_hg::msg::HandCmd>(handcmd_topic, 10);
 
     // The timer is set to read user input
-    timer_ = this->create_wall_timer(
-        std::chrono::milliseconds(100),
-        std::bind(&g1_dex3_sender::UserInputHandle, this));
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(100),
+                                     [this] { UserInputHandle(); });
 
-    thread_ = std::thread(std::bind(&g1_dex3_sender::HandControlHandler, this));
+    thread_ = std::thread([this] { HandControlHandler(); });
   }
-  ~g1_dex3_sender() {
+  ~G1Dex3Sender() override {
     running_ = false;
     thread_.join();
   }
 
  private:
-  void HandStateHandler(unitree_hg::msg::HandState::SharedPtr message) {
-    std::lock_guard<std::mutex> lck(stateMtx_);
+  void HandStateHandler(const unitree_hg::msg::HandState::SharedPtr &message) {
+    std::lock_guard<std::mutex> const lck(state_mtx_);
     if (!handState_) {
       handState_ = std::make_shared<unitree_hg::msg::HandState>(*message.get());
     } else {
@@ -75,7 +75,7 @@ class g1_dex3_sender : public rclcpp::Node {
     running_ = true;
     State lastState = INIT;
     while (running_) {
-      State state = currentState_.load();
+      State const state = current_state_.load();
       if (state != lastState) {
         RCLCPP_INFO(this->get_logger(), "--- Current State: %s ---",
                     stateToString(state));
@@ -91,7 +91,7 @@ class g1_dex3_sender : public rclcpp::Node {
       switch (state) {
         case INIT:
           RCLCPP_INFO(this->get_logger(), "Initializing...");
-          currentState_ = ROTATE;
+          current_state_ = ROTATE;
           break;
         case ROTATE:
           rotateMotors(hand_id == 0);
@@ -113,27 +113,28 @@ class g1_dex3_sender : public rclcpp::Node {
   }
 
   void UserInputHandle() {
-    char ch = getNonBlockingInput();
+    char const ch = getNonBlockingInput();
     if (ch == 'q') {
       RCLCPP_INFO(this->get_logger(), "Exiting...");
-      currentState_ = STOP;
+      current_state_ = STOP;
       timer_->cancel();
       running_ = false;
     } else if (ch == 'r') {
-      currentState_ = ROTATE;
+      current_state_ = ROTATE;
     } else if (ch == 'g') {
-      currentState_ = GRIP;
+      current_state_ = GRIP;
     } else if (ch == 'p') {
-      currentState_ = PRINT;
+      current_state_ = PRINT;
     } else if (ch == 's') {
-      currentState_ = STOP;
+      current_state_ = STOP;
     }
   }
 
   static char getNonBlockingInput() {
-    struct termios oldt, newt;
-    char ch;
-    int oldf;
+    struct termios oldt;
+    struct termios newt;
+    char ch = 0;
+    int oldf = 0;
 
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
@@ -168,11 +169,11 @@ class g1_dex3_sender : public rclcpp::Node {
   }
 
   // this method can send kp and kd to motors
-  void rotateMotors(bool isLeftHand) {
+  void rotateMotors(bool is_left_hand) {
     static int _count = 1;
     static int dir = 1;
-    const float *maxLimits = isLeftHand ? maxLimits_left : maxLimits_right;
-    const float *minLimits = isLeftHand ? minLimits_left : minLimits_right;
+    const float *maxLimits = is_left_hand ? maxLimits_left : maxLimits_right;
+    const float *minLimits = is_left_hand ? minLimits_left : minLimits_right;
 
     unitree_hg::msg::HandCmd msg;
     msg.motor_cmd.resize(MOTOR_MAX);
@@ -190,10 +191,10 @@ class g1_dex3_sender : public rclcpp::Node {
       msg.motor_cmd[i].set__kp(0.5);
       msg.motor_cmd[i].set__kd(0.1);
 
-      float range = maxLimits[i] - minLimits[i];
-      float mid = (maxLimits[i] + minLimits[i]) / 2.0;
-      float amplitude = range / 2.0;
-      float q = mid + amplitude * sin(_count / 20000.0 * M_PI);
+      float const range = maxLimits[i] - minLimits[i];
+      float const mid = (maxLimits[i] + minLimits[i]) / 2.0;
+      float const amplitude = range / 2.0;
+      float const q = mid + amplitude * sin(_count / 20000.0 * M_PI);
 
       msg.motor_cmd[i].set__q(q);
     }
@@ -212,9 +213,9 @@ class g1_dex3_sender : public rclcpp::Node {
   }
 
   // this method can send static position to motors
-  void gripHand(bool isLeftHand) {
-    const float *maxLimits = isLeftHand ? maxLimits_left : maxLimits_right;
-    const float *minLimits = isLeftHand ? minLimits_left : minLimits_right;
+  void gripHand(bool is_left_hand) {
+    const float *maxLimits = is_left_hand ? maxLimits_left : maxLimits_right;
+    const float *minLimits = is_left_hand ? minLimits_left : minLimits_right;
 
     unitree_hg::msg::HandCmd msg;
     msg.motor_cmd.resize(MOTOR_MAX);
@@ -230,7 +231,7 @@ class g1_dex3_sender : public rclcpp::Node {
       msg.motor_cmd[i].set__mode(mode);
       msg.motor_cmd[i].set__tau(0);
 
-      float mid = (maxLimits[i] + minLimits[i]) / 2.0;
+      float const mid = (maxLimits[i] + minLimits[i]) / 2.0;
 
       msg.motor_cmd[i].set__q(mid);
       msg.motor_cmd[i].set__dq(0);
@@ -243,26 +244,25 @@ class g1_dex3_sender : public rclcpp::Node {
   }
 
   // this method can subscribe dds and show the position for now
-  void printState(bool isLeftHand) {
+  void printState(bool is_left_hand) {
     unitree_hg::msg::HandState handState;
     {
-      std::lock_guard<std::mutex> lck(stateMtx_);
+      std::lock_guard<std::mutex> const lck(state_mtx_);
       if (!handState_) {
         RCLCPP_ERROR(this->get_logger(), "hand state is nullptr");
         return;
-      } else {
-        handState = *handState_.get();
       }
+      handState = *handState_.get();
     }
     Eigen::Matrix<float, 7, 1> q;
 
-    const float *maxLimits = isLeftHand ? maxLimits_left : maxLimits_right;
-    const float *minLimits = isLeftHand ? minLimits_left : minLimits_right;
+    const float *maxLimits = is_left_hand ? maxLimits_left : maxLimits_right;
+    const float *minLimits = is_left_hand ? minLimits_left : minLimits_right;
     for (int i = 0; i < 7; i++) {
       q(i) = handState.motor_state[i].q;
 
       q(i) = (q(i) - minLimits[i]) / (maxLimits[i] - minLimits[i]);
-      q(i) = unitree::common::clamp(q(i), 0.0f, 1.0f);
+      q(i) = unitree::common::clamp(q(i), 0.0F, 1.0F);
     }
     RCLCPP_INFO(this->get_logger(), "\033[2J\033[H");
     RCLCPP_INFO(this->get_logger(), "-- Hand State --");
@@ -272,7 +272,7 @@ class g1_dex3_sender : public rclcpp::Node {
     RCLCPP_INFO(this->get_logger(), "  g - Grip");
     RCLCPP_INFO(this->get_logger(), "  t - Test");
     RCLCPP_INFO(this->get_logger(), "  q - Quit");
-    if (isLeftHand) {
+    if (is_left_hand) {
       std::cout << " L: " << q.transpose() << std::endl;
     } else {
       std::cout << " R: " << q.transpose() << std::endl;
@@ -309,12 +309,12 @@ class g1_dex3_sender : public rclcpp::Node {
   rclcpp::Publisher<unitree_hg::msg::HandCmd>::SharedPtr
       handcmd_publisher_;  // ROS2 Publisher
   rclcpp::Subscription<unitree_hg::msg::HandState>::SharedPtr
-      handstate_subscriber_;         // ROS2 Subscriber
-  std::thread thread_;               // Loop publish thread
-  std::atomic<State> currentState_;  // Current hand control state
-  bool running_;                     // thread_ running flag
+      handstate_subscriber_;          // ROS2 Subscriber
+  std::thread thread_;                // Loop publish thread
+  std::atomic<State> current_state_;  // Current hand control state
+  bool running_{};                    // thread_ running flag
   unitree_hg::msg::HandState::SharedPtr handState_;  // HandState Message
-  std::mutex stateMtx_;                              // HandState mutex
+  std::mutex state_mtx_;                             // HandState mutex
 };
 
 int main(int argc, char **argv) {
@@ -341,9 +341,9 @@ int main(int argc, char **argv) {
   // start hand control
   rclcpp::init(argc, argv);  // Initialize rclcpp
   auto node =
-      std::make_shared<g1_dex3_sender>();  // Create a ROS2 node and make share
-                                           // with low_level_cmd_sender class
-  rclcpp::spin(node);                      // Run ROS2 node
-  rclcpp::shutdown();                      // Exit
+      std::make_shared<G1Dex3Sender>();  // Create a ROS2 node and make share
+                                         // with low_level_cmd_sender class
+  rclcpp::spin(node);                    // Run ROS2 node
+  rclcpp::shutdown();                    // Exit
   return 0;
 }

@@ -3,13 +3,11 @@
 #include "client/base_client.hpp"
 #include "client/g1/g1_loco_api.hpp"
 
-namespace unitree {
-namespace ros2 {
-namespace g1 {
+namespace unitree::ros2::g1 {
 
 class LocoClient : public BaseClient {
  public:
-  LocoClient(const std::string& nodeName = "g1_loco_lient");
+  explicit LocoClient(const std::string& node_name = "g1_loco_lient");
 
   // Low Level API CALL
   int32_t GetFsmId(int32_t& fsm_id);
@@ -24,17 +22,17 @@ class LocoClient : public BaseClient {
 
   int32_t GetPhase(std::vector<float>& phase);
 
-  int32_t SetFsmId(int32_t fsmId);
+  int32_t SetFsmId(int32_t fsm_id);
 
-  int32_t SetBalanceMode(int32_t balanceMode);
+  int32_t SetBalanceMode(int32_t balance_mode);
 
-  int32_t SetSwingHeight(float swingHeight);
+  int32_t SetSwingHeight(float swing_height);
 
-  int32_t SetStandHeight(float standHeight);
+  int32_t SetStandHeight(float stand_height);
 
-  int32_t SetVelocity(float vx, float vy, float omega, float duration = 1.f);
+  int32_t SetVelocity(float vx, float vy, float omega, float duration = 1.F);
 
-  int32_t SetTaskId(int32_t taskId);
+  int32_t SetTaskId(int32_t task_id);
 
   // High Level API CALL
   int32_t Damp();
@@ -70,12 +68,10 @@ class LocoClient : public BaseClient {
   int32_t ShakeHand(int stage = -1);
 
  private:
-  LocoClientApi mParam;
+  LocoClientApi param_;
 
-  bool mContinousMove = false;
-  bool mFirstShakeHandStage = false;
+  bool continous_move_ = false;
+  bool first_shake_hand_stage_ = false;
 };
 
-}  // namespace g1
-}  // namespace ros2
-}  // namespace unitree
+}  // namespace unitree::ros2::g1

@@ -2,15 +2,15 @@
 
 using namespace unitree::ros2::go2;
 
-#define UT_ROBOT_SPORT_PATH_POINT_SIZE 30
+enum { UT_ROBOT_SPORT_PATH_POINT_SIZE = 30 };
 #define SPORT_SERVICE_NAME "sport"
 #define SEND_SPORT_REQUEST(REQUEST_FUNC, ...) \
-  SEND_REQUEST(mParam, REQUEST_FUNC, __VA_ARGS__)
+  SEND_REQUEST(param_, REQUEST_FUNC, __VA_ARGS__)
 #define PARSE_SPORT_RESPONSE(RESPONSE_FUNC, ...) \
-  PARSE_RESPONSE(mParam, RESPONSE_FUNC, __VA_ARGS__)
+  PARSE_RESPONSE(param_, RESPONSE_FUNC, __VA_ARGS__)
 
-SportClient::SportClient(const std::string& nodeName)
-    : BaseClient(nodeName, SPORT_SERVICE_NAME) {}
+SportClient::SportClient(const std::string& node_name)
+    : BaseClient(node_name, SPORT_SERVICE_NAME) {}
 
 int32_t SportClient::Damp(){SEND_SPORT_REQUEST(DampReq)
                                 PARSE_SPORT_RESPONSE(DampRes)}
@@ -129,9 +129,9 @@ int32_t SportClient::WiggleHips(){SEND_SPORT_REQUEST(WiggleHipsReq)
                                       PARSE_SPORT_RESPONSE(WiggleHipsRes)}
 
 int32_t SportClient::GetState(const std::vector<std::string>& status,
-                              std::map<std::string, std::string>& statusMap){
+                              std::map<std::string, std::string>& status_map){
     SEND_SPORT_REQUEST(GetStateReq, status)
-        PARSE_SPORT_RESPONSE(GetStateRes, statusMap)}
+        PARSE_SPORT_RESPONSE(GetStateRes, status_map)}
 
 int32_t SportClient::EconomicGait(bool flag){
     SEND_SPORT_REQUEST(EconomicGaitReq, flag)

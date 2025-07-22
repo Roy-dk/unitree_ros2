@@ -2,18 +2,21 @@
  * This example demonstrates how to use ROS2 to call loco client api of unitree
  *g1 robot
  **/
+#include <cmath>
+
 #include "client/g1/g1_loco_client.hpp"
 
 using namespace unitree::ros2::g1;
 
 void ParseArgv(int argc, char **argv,
                std::map<std::string, std::string> &args) {
-  std::map<std::string, std::string> values;
+  std::map<std::string, std::string> const values;
   for (int i = 1; i < argc; ++i) {
-    std::string arg = argv[i];
+    std::string const arg = argv[i];
     if (arg.substr(0, 2) == "--") {
-      size_t pos = arg.find("=");
-      std::string key, value;
+      size_t const pos = arg.find('=');
+      std::string key;
+      std::string value;
       if (pos != std::string::npos) {
         key = arg.substr(2, pos - 2);
         value = arg.substr(pos + 1);
@@ -37,7 +40,7 @@ void ParseArgv(int argc, char **argv,
 std::vector<float> StringToFloatVector(const std::string &str) {
   std::vector<float> result;
   std::stringstream ss(str);
-  float num;
+  float num = NAN;
   while (ss >> num) {
     result.push_back(num);
     // ignore any trailing whitespace
@@ -55,27 +58,27 @@ int32_t DoWork(const std::shared_ptr<LocoClient> &client,
               << arg_pair.second << "] ..." << std::endl;
 
     if (arg_pair.first == "get_fsm_id") {
-      int32_t fsm_id;
+      int32_t fsm_id = 0;
       ret = client->GetFsmId(fsm_id);
       std::cout << "ret : " << ret << " , current fsm_id: " << fsm_id
                 << std::endl;
     } else if (arg_pair.first == "get_fsm_mode") {
-      int32_t fsm_mode;
+      int32_t fsm_mode = 0;
       ret = client->GetFsmMode(fsm_mode);
       std::cout << "ret : " << ret << " , current fsm_mode: " << fsm_mode
                 << std::endl;
     } else if (arg_pair.first == "get_balance_mode") {
-      int32_t balance_mode;
+      int32_t balance_mode = 0;
       ret = client->GetBalanceMode(balance_mode);
       std::cout << "ret : " << ret
                 << " , current balance_mode: " << balance_mode << std::endl;
     } else if (arg_pair.first == "get_swing_height") {
-      float swing_height;
+      float swing_height = NAN;
       ret = client->GetSwingHeight(swing_height);
       std::cout << "ret : " << ret
                 << " , current swing_height: " << swing_height << std::endl;
     } else if (arg_pair.first == "get_stand_height") {
-      float stand_height;
+      float stand_height = NAN;
       ret = client->GetStandHeight(stand_height);
       std::cout << "ret : " << ret
                 << " , current stand_height: " << stand_height << std::endl;
@@ -89,34 +92,37 @@ int32_t DoWork(const std::shared_ptr<LocoClient> &client,
       }
       std::cout << ")" << std::endl;
     } else if (arg_pair.first == "set_fsm_id") {
-      int32_t fsm_id = std::stoi(arg_pair.second);
+      int32_t const fsm_id = std::stoi(arg_pair.second);
       ret = client->SetFsmId(fsm_id);
       std::cout << "ret : " << ret << " , set fsm_id to " << fsm_id
                 << std::endl;
     } else if (arg_pair.first == "set_balance_mode") {
-      int32_t balance_mode = std::stoi(arg_pair.second);
+      int32_t const balance_mode = std::stoi(arg_pair.second);
       ret = client->SetBalanceMode(balance_mode);
       std::cout << "ret : " << ret << " , set balance_mode to " << balance_mode
                 << std::endl;
     } else if (arg_pair.first == "set_swing_height") {
-      float swing_height = std::stof(arg_pair.second);
+      float const swing_height = std::stof(arg_pair.second);
       ret = client->SetSwingHeight(swing_height);
       std::cout << "ret : " << ret << " , set swing_height to " << swing_height
                 << std::endl;
     } else if (arg_pair.first == "set_stand_height") {
-      float stand_height = std::stof(arg_pair.second);
+      float const stand_height = std::stof(arg_pair.second);
       ret = client->SetStandHeight(stand_height);
       std::cout << "ret : " << ret << " , set stand_height to " << stand_height
                 << std::endl;
     } else if (arg_pair.first == "set_velocity") {
       std::vector<float> param = StringToFloatVector(arg_pair.second);
       auto param_size = param.size();
-      float vx, vy, omega, duration;
+      float vx = NAN;
+      float vy = NAN;
+      float omega = NAN;
+      float duration = NAN;
       if (param_size == 3) {
         vx = param.at(0);
         vy = param.at(1);
         omega = param.at(2);
-        duration = 1.f;
+        duration = 1.F;
       } else if (param_size == 4) {
         vx = param.at(0);
         vy = param.at(1);
@@ -162,7 +168,7 @@ int32_t DoWork(const std::shared_ptr<LocoClient> &client,
       ret = client->BalanceStand();
       std::cout << "BalanceStand ret : " << ret << std::endl;
     } else if (arg_pair.first == "continous_gait") {
-      bool flag;
+      bool flag = false;
       if (arg_pair.second == "true") {
         flag = true;
       } else if (arg_pair.second == "false") {
@@ -174,7 +180,7 @@ int32_t DoWork(const std::shared_ptr<LocoClient> &client,
       ret = client->ContinuousGait(flag);
       std::cout << "ContinuousGait ret : " << ret << std::endl;
     } else if (arg_pair.first == "switch_move_mode") {
-      bool flag;
+      bool flag = false;
       if (arg_pair.second == "true") {
         flag = true;
       } else if (arg_pair.second == "false") {
@@ -188,7 +194,9 @@ int32_t DoWork(const std::shared_ptr<LocoClient> &client,
     } else if (arg_pair.first == "move") {
       std::vector<float> param = StringToFloatVector(arg_pair.second);
       auto param_size = param.size();
-      float vx, vy, omega;
+      float vx = NAN;
+      float vy = NAN;
+      float omega = NAN;
       if (param_size == 3) {
         vx = param.at(0);
         vy = param.at(1);
@@ -201,7 +209,7 @@ int32_t DoWork(const std::shared_ptr<LocoClient> &client,
       ret = client->Move(vx, vy, omega);
       std::cout << "Move ret : " << ret << std::endl;
     } else if (arg_pair.first == "set_task_id") {
-      int task_id = std::stoi(arg_pair.second);
+      int const task_id = std::stoi(arg_pair.second);
       ret = client->SetTaskId(task_id);
       std::cout << "ret : " << ret << " , set task_id to " << task_id
                 << std::endl;

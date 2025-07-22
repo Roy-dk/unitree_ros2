@@ -3,16 +3,16 @@
 #include "client/base_client.hpp"
 #include "client/motion_switch_api.hpp"
 
-namespace unitree {
-namespace ros2 {
+namespace unitree::ros2 {
 
 class MotionSwitchClient : public BaseClient {
  public:
-  MotionSwitchClient(const std::string &nodeName = "motion_switch_client");
+  explicit MotionSwitchClient(
+      const std::string &node_name = "motion_switch_client");
 
   int32_t CheckMode(std::string &form, std::string &name);
 
-  int32_t SelectMode(const std::string &nameOrAlias);
+  int32_t SelectMode(const std::string &name_or_alias);
 
   int32_t ReleaseMode();
 
@@ -21,8 +21,7 @@ class MotionSwitchClient : public BaseClient {
   int32_t GetSilent(bool &silent);
 
  private:
-  MotionSwitchApi mParam;
+  MotionSwitchApi param_;
 };
 
-}  // namespace ros2
-}  // namespace unitree
+}  // namespace unitree::ros2

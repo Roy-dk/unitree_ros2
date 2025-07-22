@@ -1,11 +1,9 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
-namespace unitree {
-namespace common {
+namespace unitree::common {
 
-uint32_t crc32_core(uint32_t* ptr, uint32_t len);
+uint32_t crc32_core(const uint32_t* ptr, uint32_t len);
 
 }
-}  // namespace unitree

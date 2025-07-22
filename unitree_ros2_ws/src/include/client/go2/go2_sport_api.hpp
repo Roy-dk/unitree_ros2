@@ -4,9 +4,7 @@
 
 #include "unitree_api/srv/generic.hpp"
 
-namespace unitree {
-namespace ros2 {
-namespace go2 {
+namespace unitree::ros2::go2 {
 
 constexpr int32_t ROBOT_SPORT_API_ID_DAMP = 1001;
 constexpr int32_t ROBOT_SPORT_API_ID_BALANCESTAND = 1002;
@@ -68,294 +66,299 @@ struct PathPoint {
 
 class SportClientApi {
  public:
-  void DampReq(const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
-
-  int32_t DampRes(
-      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
-
-  void BalanceStandReq(
+  static void DampReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t BalanceStandRes(
+  static int32_t DampRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void StopMoveReq(
+  static void BalanceStandReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t StopMoveRes(
+  static int32_t BalanceStandRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void StandUpReq(
+  static void StopMoveReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t StandUpRes(
+  static int32_t StopMoveRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void StandDownReq(
+  static void StandUpReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t StandDownRes(
+  static int32_t StandUpRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void RecoveryStandReq(
+  static void StandDownReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t RecoveryStandRes(
+  static int32_t StandDownRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void EulerReq(float roll, float pitch, float yaw,
-                const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
-
-  int32_t EulerRes(
-      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
-
-  void MoveReq(float vx, float vy, float vyaw,
-               const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
-
-  int32_t MoveRes(
-      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
-
-  void SitReq(const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
-
-  int32_t SitRes(
-      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
-
-  void RiseSitReq(
+  static void RecoveryStandReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t RiseSitRes(
+  static int32_t RecoveryStandRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void SwitchGaitReq(
+  static void EulerReq(
+      float roll, float pitch, float yaw,
+      const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
+
+  static int32_t EulerRes(
+      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
+
+  static void MoveReq(
+      float vx, float vy, float vyaw,
+      const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
+
+  static int32_t MoveRes(
+      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
+
+  static void SitReq(
+      const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
+
+  static int32_t SitRes(
+      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
+
+  static void RiseSitReq(
+      const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
+
+  static int32_t RiseSitRes(
+      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
+
+  static void SwitchGaitReq(
       int32_t d,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t SwitchGaitRes(
+  static int32_t SwitchGaitRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void TriggerReq(
+  static void TriggerReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t TriggerRes(
+  static int32_t TriggerRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void BodyHeightReq(
+  static void BodyHeightReq(
       float height,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t BodyHeightRes(
+  static int32_t BodyHeightRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void FootRaiseHeightReq(
+  static void FootRaiseHeightReq(
       float height,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t FootRaiseHeightRes(
+  static int32_t FootRaiseHeightRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void SpeedLevelReq(
+  static void SpeedLevelReq(
       int32_t level,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t SpeedLevelRes(
+  static int32_t SpeedLevelRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void HelloReq(const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
-
-  int32_t HelloRes(
-      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
-
-  void StretchReq(
+  static void HelloReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t StretchRes(
+  static int32_t HelloRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void TrajectoryFollowReq(
+  static void StretchReq(
+      const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
+
+  static int32_t StretchRes(
+      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
+
+  static void TrajectoryFollowReq(
       const std::vector<PathPoint> &path,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t TrajectoryFollowRes(
+  static int32_t TrajectoryFollowRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void SwitchJoystickReq(
+  static void SwitchJoystickReq(
       bool on, const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t SwitchJoystickRes(
+  static int32_t SwitchJoystickRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void ContinuousGaitReq(
+  static void ContinuousGaitReq(
       bool flag,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t ContinuousGaitRes(
+  static int32_t ContinuousGaitRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void WallowReq(
+  static void WallowReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t WallowRes(
+  static int32_t WallowRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void ContentReq(
+  static void ContentReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t ContentRes(
+  static int32_t ContentRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void HeartReq(const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
-
-  int32_t HeartRes(
-      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
-
-  void PoseReq(bool flag,
-               const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
-
-  int32_t PoseRes(
-      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
-
-  void ScrapeReq(
+  static void HeartReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t ScrapeRes(
+  static int32_t HeartRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void FrontFlipReq(
+  static void PoseReq(
+      bool flag,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t FrontFlipRes(
+  static int32_t PoseRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void FrontJumpReq(
+  static void ScrapeReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t FrontJumpRes(
+  static int32_t ScrapeRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void FrontPounceReq(
+  static void FrontFlipReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t FrontPounceRes(
+  static int32_t FrontFlipRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void Dance1Req(
+  static void FrontJumpReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t Dance1Res(
+  static int32_t FrontJumpRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void Dance2Req(
+  static void FrontPounceReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t Dance2Res(
+  static int32_t FrontPounceRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void Dance3Req(
+  static void Dance1Req(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t Dance3Res(
+  static int32_t Dance1Res(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void Dance4Req(
+  static void Dance2Req(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t Dance4Res(
+  static int32_t Dance2Res(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void HopSpinLeftReq(
+  static void Dance3Req(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t HopSpinLeftRes(
+  static int32_t Dance3Res(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void HopSpinRightReq(
+  static void Dance4Req(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t HopSpinRightRes(
+  static int32_t Dance4Res(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void WiggleHipsReq(
+  static void HopSpinLeftReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t WiggleHipsRes(
+  static int32_t HopSpinLeftRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void GetStateReq(
+  static void HopSpinRightReq(
+      const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
+
+  static int32_t HopSpinRightRes(
+      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
+
+  static void WiggleHipsReq(
+      const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
+
+  static int32_t WiggleHipsRes(
+      const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
+
+  static void GetStateReq(
       const std::vector<std::string> &status,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t GetStateRes(
+  static int32_t GetStateRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res,
-      std::map<std::string, std::string> &statusMap);
+      std::map<std::string, std::string> &status_map);
 
-  void EconomicGaitReq(
+  static void EconomicGaitReq(
       bool flag,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t EconomicGaitRes(
+  static int32_t EconomicGaitRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void LeftFlipReq(
+  static void LeftFlipReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t LeftFlipRes(
+  static int32_t LeftFlipRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void BackFlipReq(
+  static void BackFlipReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t BackFlipRes(
+  static int32_t BackFlipRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void FreeWalkReq(
+  static void FreeWalkReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t FreeWalkRes(
+  static int32_t FreeWalkRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void FreeBoundReq(
+  static void FreeBoundReq(
       bool flag,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t FreeBoundRes(
+  static int32_t FreeBoundRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void FreeJumpReq(
+  static void FreeJumpReq(
       bool flag,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t FreeJumpRes(
+  static int32_t FreeJumpRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void FreeAvoidReq(
+  static void FreeAvoidReq(
       bool flag,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t FreeAvoidRes(
+  static int32_t FreeAvoidRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void WalkStairReq(
+  static void WalkStairReq(
       bool flag,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t WalkStairRes(
+  static int32_t WalkStairRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void WalkUprightReq(
+  static void WalkUprightReq(
       bool flag,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t WalkUprightRes(
+  static int32_t WalkUprightRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void CrossStepReq(
+  static void CrossStepReq(
       bool flag,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t CrossStepRes(
+  static int32_t CrossStepRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 };
 
-}  // namespace go2
-}  // namespace ros2
-}  // namespace unitree
+}  // namespace unitree::ros2::go2

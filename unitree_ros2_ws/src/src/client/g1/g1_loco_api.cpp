@@ -95,10 +95,10 @@ int32_t LocoClientApi::GetPhaseRes(
 }
 
 void LocoClientApi::SetFsmIdReq(
-    int32_t fsmId,
+    int32_t fsm_id,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
   nlohmann::json js;
-  js["data"] = fsmId;
+  js["data"] = fsm_id;
   req->parameter = js.dump();
   req->api_id = ROBOT_API_ID_LOCO_SET_FSM_ID;
 }
@@ -109,10 +109,10 @@ int32_t LocoClientApi::SetFsmIdRes(
 }
 
 void LocoClientApi::SetBalanceModeReq(
-    int32_t balanceMode,
+    int32_t balance_mode,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
   nlohmann::json js;
-  js["data"] = balanceMode;
+  js["data"] = balance_mode;
   req->parameter = js.dump();
   req->api_id = ROBOT_API_ID_LOCO_SET_BALANCE_MODE;
 }
@@ -123,10 +123,10 @@ int32_t LocoClientApi::SetBalanceModeRes(
 }
 
 void LocoClientApi::SetSwingHeightReq(
-    float swingHeight,
+    float swing_height,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
   nlohmann::json js;
-  js["data"] = swingHeight;
+  js["data"] = swing_height;
   req->parameter = js.dump();
   req->api_id = ROBOT_API_ID_LOCO_SET_SWING_HEIGHT;
 }
@@ -137,10 +137,10 @@ int32_t LocoClientApi::SetSwingHeightRes(
 }
 
 void LocoClientApi::SetStandHeightReq(
-    float standHeight,
+    float stand_height,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
   nlohmann::json js;
-  js["data"] = standHeight;
+  js["data"] = stand_height;
   req->parameter = js.dump();
   req->api_id = ROBOT_API_ID_LOCO_SET_STAND_HEIGHT;
 }
@@ -154,7 +154,7 @@ void LocoClientApi::SetVelocityReq(
     float vx, float vy, float omega, float duration,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
   nlohmann::json js;
-  std::vector<float> velocity = {vx, vy, omega};
+  std::vector<float> const velocity = {vx, vy, omega};
   js["velocity"] = velocity;
   js["duration"] = duration;
   req->parameter = js.dump();
@@ -167,10 +167,10 @@ int32_t LocoClientApi::SetVelocityRes(
 }
 
 void LocoClientApi::SetTaskIdReq(
-    int32_t taskId,
+    int32_t task_id,
     const std::shared_ptr<unitree_api::srv::Generic::Request> &req) {
   nlohmann::json js;
-  js["data"] = taskId;
+  js["data"] = task_id;
   req->parameter = js.dump();
   req->api_id = ROBOT_API_ID_LOCO_SET_ARM_TASK;
 }

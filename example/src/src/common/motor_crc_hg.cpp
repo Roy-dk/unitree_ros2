@@ -19,9 +19,9 @@ void get_crc(unitree_hg::msg::LowCmd &msg) {
     raw.motorCmd[i].reserve = msg.motor_cmd[i].reserve;
   }
 
-  memcpy(&raw.reserve[0], &msg.reserve[0], 4);
+  memcpy(raw.reserve.data(), msg.reserve.data(), 4);
 
-  raw.crc =
-      unitree::common::crc32_core((uint32_t *)&raw, (sizeof(LowCmd) >> 2) - 1);
+  raw.crc = unitree::common::crc32_core(reinterpret_cast<uint32_t *>(&raw),
+                                        (sizeof(LowCmd) >> 2) - 1);
   msg.crc = raw.crc;
 }

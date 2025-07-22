@@ -37,7 +37,7 @@ struct WaveHeader {
 static_assert(sizeof(WaveHeader) == 44, "WaveHeader Should be 44 bytes");
 
 std::vector<uint8_t> ReadWaveImpl(std::istream &is, int32_t *sampling_rate,
-                                  int8_t *channelCount, bool *is_ok) {
+                                  int8_t *channel_count, bool *is_ok) {
   WaveHeader header{};
   is.read(reinterpret_cast<char *>(&header.chunk_id), sizeof(header.chunk_id));
 
@@ -103,7 +103,7 @@ std::vector<uint8_t> ReadWaveImpl(std::istream &is, int32_t *sampling_rate,
   is.read(reinterpret_cast<char *>(&header.num_channels),
           sizeof(header.num_channels));
 
-  *channelCount = (int8_t)header.num_channels;
+  *channel_count = static_cast<int8_t>(header.num_channels);
 
   is.read(reinterpret_cast<char *>(&header.sample_rate),
           sizeof(header.sample_rate));
@@ -188,10 +188,10 @@ std::vector<uint8_t> ReadWaveImpl(std::istream &is, int32_t *sampling_rate,
 }
 
 std::vector<uint8_t> ReadWave(const std::string &filename,
-                              int32_t *sampling_rate, int8_t *channelCount,
+                              int32_t *sampling_rate, int8_t *channel_count,
                               bool *is_ok) {
   std::ifstream is(filename, std::ifstream::binary);
-  auto samples = ReadWaveImpl(is, sampling_rate, channelCount, is_ok);
+  auto samples = ReadWaveImpl(is, sampling_rate, channel_count, is_ok);
   return samples;
 }
 // wave reader end
@@ -209,7 +209,7 @@ int main(int argc, char **argv) {
               << "Usage: g1_audio_client_example audio_file_path" << std::endl;
     return 1;
   }
-  std::string audio_file_path = argv[1];
+  std::string const audio_file_path = argv[1];
   std::cout << "audio file path : " << audio_file_path << std::endl;
 
   try {
@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
     std::this_thread::sleep_for(std::chrono::seconds(10));
 
     /*Volume Example*/
-    uint8_t volume;
+    uint8_t volume = 0;
     ret = client->GetVolume(volume);
     std::cout << "GetVolume ret:" << ret
               << "  volume = " << std::to_string(volume) << std::endl;
@@ -234,7 +234,7 @@ int main(int argc, char **argv) {
     int32_t sample_rate = -1;
     int8_t num_channels = 0;
     bool filestate = false;
-    std::vector<uint8_t> pcm =
+    std::vector<uint8_t> const pcm =
         ReadWave(audio_file_path, &sample_rate, &num_channels, &filestate);
     std::cout << "pcm data size : " << pcm.size() << std::endl;
 

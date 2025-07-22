@@ -4,13 +4,13 @@
 
 void get_crc(unitree_go::msg::LowCmd& msg) {
   LowCmd raw{};
-  memcpy(&raw.head[0], &msg.head[0], 2);
+  memcpy(raw.head.data(), msg.head.data(), 2);
 
   raw.levelFlag = msg.level_flag;
   raw.frameReserve = msg.frame_reserve;
 
-  memcpy(&raw.SN[0], &msg.sn[0], 8);
-  memcpy(&raw.version[0], &msg.version[0], 8);
+  memcpy(raw.SN.data(), msg.sn.data(), 8);
+  memcpy(raw.version.data(), msg.version.data(), 8);
 
   raw.bandWidth = msg.bandwidth;
 
@@ -22,21 +22,21 @@ void get_crc(unitree_go::msg::LowCmd& msg) {
     raw.motorCmd[i].Kp = msg.motor_cmd[i].kp;
     raw.motorCmd[i].Kd = msg.motor_cmd[i].kd;
 
-    memcpy(&raw.motorCmd[i].reserve[0], &msg.motor_cmd[i].reserve[0], 12);
+    memcpy(raw.motorCmd[i].reserve.data(), msg.motor_cmd[i].reserve.data(), 12);
   }
 
   raw.bms.off = msg.bms_cmd.off;
-  memcpy(&raw.bms.reserve[0], &msg.bms_cmd.reserve[0], 3);
+  memcpy(raw.bms.reserve.data(), msg.bms_cmd.reserve.data(), 3);
 
-  memcpy(&raw.wirelessRemote[0], &msg.wireless_remote[0], 40);
+  memcpy(raw.wirelessRemote.data(), msg.wireless_remote.data(), 40);
 
-  memcpy(&raw.led[0], &msg.led[0], 12);  // go2
-  memcpy(&raw.fan[0], &msg.fan[0], 2);
+  memcpy(raw.led.data(), msg.led.data(), 12);  // go2
+  memcpy(raw.fan.data(), msg.fan.data(), 2);
   raw.gpio = msg.gpio;  // go2
 
   raw.reserve = msg.reserve;
 
-  raw.crc =
-      unitree::common::crc32_core((uint32_t*)&raw, (sizeof(LowCmd) >> 2) - 1);
+  raw.crc = unitree::common::crc32_core(reinterpret_cast<uint32_t*>(&raw),
+                                        (sizeof(LowCmd) >> 2) - 1);
   msg.crc = raw.crc;
 }

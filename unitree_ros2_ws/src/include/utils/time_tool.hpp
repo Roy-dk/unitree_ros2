@@ -5,8 +5,7 @@
 #include <sstream>
 #include <string>
 
-namespace unitree {
-namespace common {
+namespace unitree::common {
 uint64_t GetCurrentTimeSeconds() {
   auto now = std::chrono::system_clock::now();
   auto duration = now.time_since_epoch();
@@ -29,8 +28,8 @@ uint64_t GetCurrentTimeMicroseconds() {
 
 std::string GetCurrentTimeStr(const std::string& format = "%Y-%m-%d %H:%M:%S") {
   auto now = std::chrono::system_clock::now();
-  std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-  std::tm tm_time = *std::localtime(&now_time);
+  std::time_t const now_time = std::chrono::system_clock::to_time_t(now);
+  std::tm const tm_time = *std::localtime(&now_time);
 
   std::ostringstream oss;
   oss << std::put_time(&tm_time, format.c_str());
@@ -49,5 +48,4 @@ uint64_t GetDurationMicroseconds(uint64_t start_time_microseconds) {
   return GetCurrentTimeMicroseconds() - start_time_microseconds;
 }
 
-}  // namespace common
-}  // namespace unitree
+}  // namespace unitree::common

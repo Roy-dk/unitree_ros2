@@ -2,9 +2,7 @@
 
 #include "unitree_api/srv/generic.hpp"
 
-namespace unitree {
-namespace ros2 {
-namespace g1 {
+namespace unitree::ros2::g1 {
 
 constexpr int32_t ROBOT_API_ID_AUDIO_TTS = 1001;
 constexpr int32_t ROBOT_API_ID_AUDIO_ASR = 1002;
@@ -20,49 +18,47 @@ class AudioClientApi {
       const std::string &text, int32_t speaker_id,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t TtsMakerRes(
+  static int32_t TtsMakerRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void GetVolumeReq(
+  static void GetVolumeReq(
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t GetVolumeRes(
+  static int32_t GetVolumeRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res,
       uint8_t &volume);
 
-  void SetVolumeReq(
+  static void SetVolumeReq(
       uint8_t volume,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t SetVolumeRes(
+  static int32_t SetVolumeRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void PlayStreamReq(
+  static void PlayStreamReq(
       const std::string &app_name, const std::string &stream_id,
       const std::vector<uint8_t> &pcm_data,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t PlayStreamRes(
+  static int32_t PlayStreamRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void PlayStopReq(
+  static void PlayStopReq(
       const std::string &app_name,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t PlayStopRes(
+  static int32_t PlayStopRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
-  void LedControlReq(
-      uint8_t R, uint8_t G, uint8_t B,
+  static void LedControlReq(
+      uint8_t r, uint8_t g, uint8_t b,
       const std::shared_ptr<unitree_api::srv::Generic::Request> &req);
 
-  int32_t LedControlRes(
+  static int32_t LedControlRes(
       const std::shared_ptr<unitree_api::srv::Generic::Response> &res);
 
  private:
-  uint32_t mTtsIndex = 0;
+  uint32_t tts_index_ = 0;
 };
 
-}  // namespace g1
-}  // namespace ros2
-}  // namespace unitree
+}  // namespace unitree::ros2::g1

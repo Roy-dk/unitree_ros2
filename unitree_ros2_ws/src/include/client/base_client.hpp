@@ -1,18 +1,20 @@
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
+#include <utility>
 
 #include "client/config.hpp"
 #include "unitree_api/srv/generic.hpp"
 
-#define WAIT_ROS_SERVICE_INTERVAL (1)
-#define WAIT_ROS_SERVICE_MAX_TRY_TIME (5)
+enum { WAIT_ROS_SERVICE_INTERVAL = (1), WAIT_ROS_SERVICE_MAX_TRY_TIME = (5) };
 
-#define ERR_ROS_SERVICE_NOT_READY (1001)
-#define ERR_ROS_API_TIMEOUT (1002)
-#define ERR_ROS_API_GET_FUTURE (1003)
-#define ERR_ROS_API_CALL_FAIL (1004)
-#define ERR_ROS_API_INVALID_PARAM (1005)
+enum {
+  ERR_ROS_SERVICE_NOT_READY = (1001),
+  ERR_ROS_API_TIMEOUT = (1002),
+  ERR_ROS_API_GET_FUTURE = (1003),
+  ERR_ROS_API_CALL_FAIL = (1004),
+  ERR_ROS_API_INVALID_PARAM = (1005)
+};
 
 #define SEND_REQUEST(PARAM, REQUEST_FUNC, ...)                           \
   auto request = std::make_shared<unitree_api::srv::Generic::Request>(); \
@@ -30,17 +32,15 @@
 #define PARSE_RESPONSE(PARAM, RESPONSE_FUNC, ...) \
   return PARAM.RESPONSE_FUNC(response __VA_OPT__(, ) __VA_ARGS__);
 
-namespace unitree {
-namespace ros2 {
+namespace unitree::ros2 {
 
 class BaseClient : public rclcpp::Node, public ClientConfig {
  public:
-  BaseClient(const std::string &nodeName, const std::string &serviceName)
-      : Node(nodeName), mServiceName(serviceName) {
-    mClient =
-        this->create_client<unitree_api::srv::Generic>(mServiceName.c_str());
+  BaseClient(const std::string &node_name, std::string service_name)
+      : Node(node_name), mServiceName(std::move(service_name)) {
+    client_ = this->create_client<unitree_api::srv::Generic>(mServiceName);
   }
-  virtual ~BaseClient() {}
+  ~BaseClient() override = default;
 
  protected:
   int32_t Call(
@@ -51,8 +51,8 @@ class BaseClient : public rclcpp::Node, public ClientConfig {
                    mServiceName.c_str());
       return ERR_ROS_SERVICE_NOT_READY;
     }
-    auto future = mClient->async_send_request(request);
-    uint32_t timeout = GetApiTimeout(request->api_id);
+    auto future = client_->async_send_request(request);
+    uint32_t const timeout = GetApiTimeout(request->api_id);
     auto status = rclcpp::spin_until_future_complete(
         this->get_node_base_interface(), future, std::chrono::seconds(timeout));
     if (status == rclcpp::FutureReturnCode::SUCCESS) {
@@ -62,10 +62,10 @@ class BaseClient : public rclcpp::Node, public ClientConfig {
       if (future.valid()) {
         response = future.get();
         return 0;
-      } else {
-        RCLCPP_ERROR(this->get_logger(), "api call get future failed");
-        return ERR_ROS_API_GET_FUTURE;
       }
+      RCLCPP_ERROR(this->get_logger(), "api call get future failed");
+      return ERR_ROS_API_GET_FUTURE;
+
     } else if (status == rclcpp::FutureReturnCode::TIMEOUT) {
       RCLCPP_ERROR(this->get_logger(), "api call timeout %d(s)", timeout);
       SetServiceStatus(false);
@@ -82,7 +82,7 @@ class BaseClient : public rclcpp::Node, public ClientConfig {
       return true;
     }
     int32_t tryTimes = 0;
-    while (!mClient->wait_for_service(
+    while (!client_->wait_for_service(
         std::chrono::seconds(WAIT_ROS_SERVICE_INTERVAL))) {
       if (!rclcpp::ok()) {
         RCLCPP_ERROR(
@@ -106,8 +106,7 @@ class BaseClient : public rclcpp::Node, public ClientConfig {
   }
 
   std::string mServiceName;
-  rclcpp::Client<unitree_api::srv::Generic>::SharedPtr mClient;
+  rclcpp::Client<unitree_api::srv::Generic>::SharedPtr client_;
 };
 
-}  // namespace ros2
-}  // namespace unitree
+}  // namespace unitree::ros2
