@@ -3,7 +3,7 @@
 	"dockerComposeFile": [
 		"docker-compose.yml"
 	],
-	"service": "devcontainer",
+	"service": "devcontainer-foxy",
 	"workspaceFolder": "/workspace",
 	"customizations": {
 		"vscode": {

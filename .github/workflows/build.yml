@@ -1,0 +1,30 @@
+name: C/C++ Build Workflow
+
+on:
+  push:
+    branches: [ "ros2_service_support" ]
+  pull_request:
+    branches: [ "ros2_service_support" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use latest runner to host the container
+    
+    container:
+      image: althack/ros2:humble-full
+      options: --privileged  # Needed for some build tools
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+        apt-get update
+        apt-get install -y cmake g++ build-essential libyaml-cpp-dev libeigen3-dev
+        apt install ros-foxy-rmw-cyclonedds-cpp
+        apt install ros-foxy-rosidl-generator-dds-idl
+    - name: ROS2 build
+      run: |
+        colcon build
