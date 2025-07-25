@@ -1,13 +1,13 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+
+<a name="v0.2.0"></a>
+## [v0.2.0] - 2025-07-25
 ### Features
 - **deprecate:** delete deprecated functions that are no longer supported
 
 - **go2:** add some new supported go2 sports APIs
-
-
-
 Now the APIs in the following list are supported:
 
 | name                                  | value | example                                                      |
@@ -27,7 +27,7 @@ Now the APIs in the following list are supported:
 | ROBOT_SPORT_API_ID_WALKUPRIGHT      | 2050  | void SportClient::WalkUpright(); |
 | ROBOT_SPORT_API_ID_CROSSSTEP        | 2051  | void SportClient::CrossStep(); |
 | ROBOT_SPORT_API_ID_AUTORECOVERY_SET | 2054  | void SportClient::AutoRecoverySet(); |
-| ROBOT_SPORT_API_ID_AUTORECOVERY_GET | 2055  | void SportClient::AutoRecoveryGet(); |
+| ROBOT_SPORT_API_ID_AUTORECOVERY_GET | 2055  | Waiting for Implementation |
 | ROBOT_SPORT_API_ID_SWITCHAVOIDMODE  | 2058  | void SportClient::SwitchAvoidMode(); |
 
 At the same time, you can also refer to the API implementation in `example/src/src/common/ros2.sport_cient.cpp` to communicate with Go2 using ROS2 on your own. An example is in the file `example/src/src/go2/go2_Sport_cient.cpp`.
@@ -53,4 +53,5 @@ At the same time, you can also refer to the API implementation in `example/src/s
 <a name="v0.1.0"></a>
 ## v0.1.0 - 2025-07-23
 
-[Unreleased]: https://github.com/unitreerobotics/unitree_ros2/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/unitreerobotics/unitree_ros2/compare/v0.2.0...HEAD
+[v0.2.0]: https://github.com/unitreerobotics/unitree_ros2/compare/v0.1.0...v0.2.0
